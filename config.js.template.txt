@@ -1,0 +1,18 @@
+module.exports = {
+  slack: {
+    apiToken: '',
+    token: 'x',
+    webhook: '',
+    botName: 'foody',
+    botIconEmoji: 'bread',
+  },
+  www: {
+    username: '',
+    password: '',
+    sessionSecret: '',
+    base: 'foody',
+    url: ''
+  },
+  database: '/path/to/data/foody.sqlite',
+  environment: 'development'
+};

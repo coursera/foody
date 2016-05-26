@@ -1,0 +1,13 @@
+html
+  head
+    base(href=base + "/")
+    meta(charset="utf-8")
+    style.
+      body {
+        background-color: #BBDEFB
+      }
+  body
+    div#content
+    script().
+      window.authorization = '#{authorization}';
+    script(src="www/js/bundle." + (config.environment === "development" ? "" : "min.") + "js")
