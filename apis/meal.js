@@ -20,14 +20,13 @@ module.exports.setup = (router, db, auth) => {
 
   router.put('/api/meal', auth, (req, res) => {
     const title = req.body.title;
-    const symbol = req.body.symbol || '';
     const start = moment(req.body.starttime).valueOf();
     const end = moment(req.body.endtime).valueOf();
     const required = req.body.required;
 
     if (title && start && end) {
-      const sql = 'insert into meal (title, symbol, starttime, endtime, required) values ($title, $symbol, $starttime, $endtime, $required)';
-      const params = { $title: title, $symbol: symbol, $starttime: start, $endtime: end, $required: required };
+      const sql = 'insert into meal (title, starttime, endtime, required) values ($title, $starttime, $endtime, $required)';
+      const params = { $title: title, $starttime: start, $endtime: end, $required: required };
 
       db.run(sql, params).then((stats) => {
         res.send({ id: stats.lastID });
@@ -42,14 +41,13 @@ module.exports.setup = (router, db, auth) => {
   router.post('/api/meal/:id', auth, (req, res) => {
     const id = req.params.id;
     const title = req.body.title;
-    const symbol = req.body.symbol || '';
     const start = moment(req.body.starttime).valueOf();
     const end = moment(req.body.endtime).valueOf();
     const required = req.body.required;
 
     if (title && id && start && end) {
-      const sql = 'update meal set title=$title, symbol=$symbol, starttime=$starttime, endtime=$endtime, required=$required where id=$id';
-      const params = { $title: title, $symbol: symbol, $id: id, $starttime: start, $endtime: end, $required: required };
+      const sql = 'update meal set title=$title, starttime=$starttime, endtime=$endtime, required=$required where id=$id';
+      const params = { $title: title, $id: id, $starttime: start, $endtime: end, $required: required };
 
       db.run(sql, params).then(() => {
         res.send({ id });
