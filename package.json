@@ -1,6 +1,6 @@
 {
-  "name": "foodbot",
-  "version": "0.1.0",
+  "name": "foody",
+  "version": "0.1.1",
   "description": "slackbot to know what is for lunch",
   "main": "index.js",
   "dependencies": {
@@ -37,9 +37,8 @@
     "webpack-dev-middleware": "^1.6.1"
   },
   "scripts": {
-    "build": "webpack -p --config webpack.config.prod.js",
-    "postinstall": "webpack -p --config webpack.config.prod.js"
+    "build": "webpack -p --config webpack.config.prod.js"
   },
-  "author": "",
+  "author": "eleith",
   "license": "ISC"
 }
