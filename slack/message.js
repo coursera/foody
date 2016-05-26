@@ -1,5 +1,3 @@
-var config = require('../config');
-
 var Message = function(text) {
   this.response = {};
 
