@@ -33,7 +33,7 @@ const what = new Command(matcher, (slack, db, config) => {
       dish.title,
       dish.meal,
       meal.title,
-      meal.endtime,
+      meal.endtime
     from dish
       left join meal on dish.meal = meal.id
     where dish.served_on = $whereDate group by dish.meal`;
