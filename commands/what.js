@@ -38,6 +38,8 @@ const what = new Command(matcher, (slack, db, config) => {
       left join meal on dish.meal = meal.id
     where dish.served_on = $whereDate group by dish.meal`;
 
+  moment.tz.setDefault('America/Los_Angeles');
+
   return new Promise((resolve /* , reject */) => {
     db.getAll(mealSql).then(meals => {
       const foundMeal = meals.findIndex(one => (new RegExp(one.title, 'i')).test(command));
@@ -45,7 +47,7 @@ const what = new Command(matcher, (slack, db, config) => {
       const foundTime = days.findIndex(one => (new RegExp(one + '|' + one.replace('day', '?') + '|' + one.substring(0, 3), 'i')).test(command));
       const wordsLength = command.split(' ').length;
 
-      const date = moment().tz('America/Los_Angeles');
+      const date = moment();
 
       if (foundTime > -1) {
         if (foundTime < 7) {
@@ -91,21 +93,20 @@ const what = new Command(matcher, (slack, db, config) => {
                 emojified_title = emojified_title.replace(new RegExp(`(\\s+|^)${emoji}(\\s+|$)`, 'igm'), ` :${emoji}: `);
               });
 
-              const attachment = { title: emojified_title };
+              const attachment = { title: emojified_title, text: '' };
+
+              if (dish.description) {
+                attachment.text += emojified_description;
+              }
 
               if (dish.restrictions) {
                 const dishRestrictions = dish.restrictions.split(',').map(id => parseInt(id, 10));
                 const restriction = restrictions.filter(one => dishRestrictions.indexOf(one.id) !== -1);
                 const titleRestrictions = restriction.map(one => one.title).join(', ');
-
-                attachment.fields = [{ title: 'Diets', value: titleRestrictions, short: true }];
                 attachment.color = restriction[0].color;
+                attachment.text += titleRestrictions;
               } else {
                 attachment.color = '#3F5E9D';
-              }
-
-              if (dish.description) {
-                attachment.text = emojified_description;
               }
 
               message.addAttachment(attachment);

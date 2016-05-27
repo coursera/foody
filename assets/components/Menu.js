@@ -162,7 +162,7 @@ class Menu extends React.Component {
       hasMeal[dish.meal] = true;
     });
 
-    this.state.meals.sort((b, a) => moment(b.starttime).toDate() < moment(a.starttime).toDate()).forEach((meal) => {
+    this.state.meals.sort((a, b) => moment(b.starttime).toDate() < moment(a.starttime).toDate()).forEach((meal) => {
       if (hasMeal[meal.id] || meal.required) {
         rows.push(<TableRow key={'meal' + meal.id}>
           <TableRowColumn style={ { borderRight: `solid 1px ${theme.tableRow.borderColor}`, padding: '10px', textAlign: 'center' } }>
