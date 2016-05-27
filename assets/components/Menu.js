@@ -99,7 +99,7 @@ class Menu extends React.Component {
       return (
         <TableRowColumn key={date + index} style={ rowStyle }>
           {dishes.map((dish, i) => {
-            return (<div key={'dish' + meal.id + i} style={ { whiteSpace: 'normal' } }>
+            return (<div key={'dish' + meal.id + i} style={ { whiteSpace: 'normal', marginBottom: '12px' } }>
                 <div style={ { fontWeight: 'bold' } }>{dish.title}</div>
                 <div>{dish.description}</div>
                 <div>
@@ -162,7 +162,7 @@ class Menu extends React.Component {
       hasMeal[dish.meal] = true;
     });
 
-    this.state.meals.forEach((meal) => {
+    this.state.meals.sort((a, b) => moment(b.starttime).toDate() < moment(a.starttime).toDate()).forEach((meal) => {
       if (hasMeal[meal.id] || meal.required) {
         rows.push(<TableRow key={'meal' + meal.id}>
           <TableRowColumn style={ { borderRight: `solid 1px ${theme.tableRow.borderColor}`, padding: '10px', textAlign: 'center' } }>
