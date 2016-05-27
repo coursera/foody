@@ -75,8 +75,6 @@ class DishRow extends React.Component {
   render() {
     const editable = this.props.edit.on && this.props.edit.item.id === this.props.item.id && this.props.checked;
 
-    console.log(this.state.served_on, moment(this.state.served_on).toDate());
-
     const colServed = (
       <TableRowColumn style={this.props.style.served_on}>
         <DatePicker
