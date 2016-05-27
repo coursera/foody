@@ -76,7 +76,7 @@ const what = new Command(matcher, (slack, db, config) => {
             const caterer = caterers.find(one => one.id === dishes[0].caterer);
             const catererLink = `<${caterer.website}|${caterer.title}>`;
             const mealTime = `${moment(meal.starttime).format('h:mm a')} - ${moment(meal.endtime).format('h:mm a')}`;
-            const mealLink = `<${config.www.url}/menu/${date.week()}|${date.format('dddd')}'s>`;
+            const mealLink = `<${config.www.url}/${config.www.base}/menu/${date.week()}|${date.format('dddd')}'s>`;
             const text = `${mealLink} ${meal.title} (${mealTime}) is brought to you by ${catererLink}`;
 
             message = new Message(text);
