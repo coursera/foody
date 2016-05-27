@@ -2,7 +2,7 @@ var path = require('path');
 var webpack = require('webpack');
 
 module.exports = {
-  entry: path.join(__dirname, 'assets', 'components', 'test.js'),
+  entry: ['babel-polyfill', 'whatwg-fetch', path.join(__dirname, 'assets', 'components', 'test.js')],
   output: {
     path: path.join(__dirname, 'www', 'js'),
     filename: 'bundle.js',
@@ -29,4 +29,6 @@ module.exports = {
   resolveLoader: {
     root: path.join(__dirname, 'node_modules'),
   },
+  plugins: [
+  ],
 };

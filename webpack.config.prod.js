@@ -2,7 +2,7 @@ var path = require('path');
 var webpack = require('webpack');
 
 module.exports = {
-  entry: path.join(__dirname, 'assets', 'components', 'test.js'),
+  entry: ['babel-polyfill', 'whatwg-fetch', path.join(__dirname, 'assets', 'components', 'test.js')],
   output: {
     path: path.join(__dirname, 'www', 'js'),
     filename: 'bundle.min.js',
@@ -40,5 +40,6 @@ module.exports = {
         warnings: true,
       },
     }),
+    new webpack.NoErrorsPlugin(),
   ],
 };
