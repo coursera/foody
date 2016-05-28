@@ -6,6 +6,36 @@ html
       body {
         background-color: #BBDEFB
       }
+      /* Print Styles */
+      @media print {
+        hr { 
+          display: none !important;
+        }
+
+        button {
+          display: none !important;
+        }
+
+        th {
+          background-color: #efefef !important;
+        }
+
+        td {
+          background-color: white !important;
+        }
+
+        .dishDescription {
+          display: none !important;
+        }
+
+        .menu {
+          width: 100% !important;
+        }
+
+        .menuFooter {
+          display: block !important;
+        }
+      }
   body
     div#content
     script().

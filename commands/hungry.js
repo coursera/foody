@@ -18,7 +18,7 @@ const hungry = new Command(matcher, (slack, db, config) => {
     if (!user) {
       resolve(new Message(`:${emoji}:`));
     } else {
-      response.sendTo(user, new Message(`@${slack.user_name} thinks you are hungry. here, have a :${emoji}:!`), config);
+      response.sendTo(user, new Message(`@${slack.user_name} thinks you are hungry. here, have a :${emoji}:!`), config.slack);
       resolve(new Message(`okay. i gave @${user} something to eat`));
     }
   });

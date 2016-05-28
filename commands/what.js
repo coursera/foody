@@ -3,6 +3,7 @@
 
 const Message = require('../slack/message');
 const Command = require('../slack/command');
+const response = require('../slack/response');
 const emojis = require('../data/emojis');
 const moment = require('moment-timezone');
 
@@ -61,6 +62,7 @@ const what = new Command(matcher, (slack, db, config) => {
 
       if (foundMeal !== -1 && wordsLength <= 7) {
         const dishesParams = { $whereDate: date.format('Y-MM-D'), $mealId: meals[foundMeal].id };
+        resolve(new Message('let me see what i can find ...'));
 
         Promise.all([
           db.getAll(restrictionsSql),
@@ -115,9 +117,9 @@ const what = new Command(matcher, (slack, db, config) => {
             message = new Message(`there will be no ${meals[foundMeal].title} provided on ${date.format('dddd')}`);
           }
 
-          resolve(message);
+          response.sendTo(slack.user_name, message, config.slack);
         }).catch((err) => {
-          resolve(new Message(err.toString()));
+          response.sendTo(slack.user_name, new Message(err.toString()), config.slack);
         });
       } else if (foundTime !== -1 && wordsLength === 1) {
         db.getAll(dishesTimeSql, { $whereDate: date.format('Y-MM-D') })

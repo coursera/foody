@@ -100,11 +100,11 @@ class Menu extends React.Component {
         <TableRowColumn key={date + index} style={ rowStyle }>
           {dishes.map((dish, i) => {
             return (<div key={'dish' + meal.id + i} style={ { whiteSpace: 'normal', marginBottom: '12px' } }>
-                <div style={ { fontWeight: 'bold' } }>{dish.title}</div>
-                <div>{dish.description}</div>
                 <div>
-                  {this.buildRestrictions(dish)}
+                  <span style={ { fontWeight: 'bold' } }>{dish.title}</span>
+                  <span> {this.buildRestrictions(dish)}</span>
                 </div>
+                <div className="dishDescription">{dish.description}</div>
               </div>);})}
         </TableRowColumn>);
     }
@@ -120,7 +120,7 @@ class Menu extends React.Component {
 
     return (
       <TableRowColumn key={date + index} style={ emptyRowStyle }>
-        <div>no {meal.title}</div>
+        <div>No {meal.title.toLowerCase()}</div>
       </TableRowColumn>);
   }
 
@@ -133,7 +133,7 @@ class Menu extends React.Component {
 
     return diets.map((diet, index) => {
       return (<span key={diet} style={ { fontStyle: 'italic' } }>
-        {this.state.restrictions.find(r => r.id.toString() === diet).title}
+        {this.state.restrictions.find(r => r.id.toString() === diet).title.split(' ').map(word => word[0]).join('')}
         {index + 1 < diets.length ? ', ' : ''}
         </span>);});
   }
@@ -162,7 +162,7 @@ class Menu extends React.Component {
       hasMeal[dish.meal] = true;
     });
 
-    this.state.meals.sort((a, b) => moment(b.starttime).toDate() < moment(a.starttime).toDate()).forEach((meal) => {
+    this.state.meals.sort((a, b) => moment(b.starttime).hour() < moment(a.starttime).hour()).forEach((meal) => {
       if (hasMeal[meal.id] || meal.required) {
         rows.push(<TableRow key={'meal' + meal.id}>
           <TableRowColumn style={ { borderRight: `solid 1px ${theme.tableRow.borderColor}`, padding: '10px', textAlign: 'center' } }>
@@ -181,7 +181,7 @@ class Menu extends React.Component {
         name="menu-date"
         autoOk
         value={moment(dates.from).toDate()}
-        textFieldStyle={ { fontSize: '28px', height: 'auto', width: 'auto' } }
+        textFieldStyle={ { fontSize: '28px', height: 'auto', width: '50%' } }
         inputStyle={ { color: theme.palette.canvasColor, cursor: 'pointer' } }
         onChange={(e, date) => this.changeWeek(date) }
         formatDate={() => moment(dates.from).format('[Menu for] MMM D - ') + moment(dates.to).format('D, Y')}
@@ -189,7 +189,7 @@ class Menu extends React.Component {
     </div>);
 
     return (
-      <div style={ { width: '85%', margin: 'auto' } }>
+      <div className="menu" style={ { width: '85%', margin: 'auto' } }>
         <Paper zDepth={2}>
           <AppBar iconElementLeft={home} title={title} />
           <Table selectable={false} style= { { borderCollapse: 'collapse' }}>
@@ -216,6 +216,9 @@ class Menu extends React.Component {
             </TableBody>
           </Table>
         </Paper>
+        <div className="menuFooter" style={ { textAlign: 'center', fontSize: '27px', marginTop: '20px', display: 'none' } }>
+          {window.location.href}
+        </div>
       </div>
     );
   }
