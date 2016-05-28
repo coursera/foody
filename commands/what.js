@@ -104,9 +104,10 @@ const what = new Command(matcher, (slack, db, config) => {
               if (dish.restrictions) {
                 const dishRestrictions = dish.restrictions.split(',').map(id => parseInt(id, 10));
                 const restriction = restrictions.filter(one => dishRestrictions.indexOf(one.id) !== -1);
-                const titleRestrictions = restriction.map(one => one.title).join(', ');
+                const titleRestrictions = restriction.map(one => '_' + one.title + '_').join(', ');
                 attachment.color = restriction[0].color;
-                attachment.text += '\n _' + titleRestrictions + '_';
+                attachment.text += '\n' + titleRestrictions;
+                attachment.mrkdwn_in = ['text'];
               } else {
                 attachment.color = '#3F5E9D';
               }
