@@ -106,7 +106,7 @@ const what = new Command(matcher, (slack, db, config) => {
                 const restriction = restrictions.filter(one => dishRestrictions.indexOf(one.id) !== -1);
                 const titleRestrictions = restriction.map(one => one.title).join(', ');
                 attachment.color = restriction[0].color;
-                attachment.text += titleRestrictions;
+                attachment.text += '\n _' + titleRestrictions + '_';
               } else {
                 attachment.color = '#3F5E9D';
               }
