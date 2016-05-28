@@ -158,7 +158,9 @@ class Menu extends React.Component {
 
     this.state.dishes.forEach((dish) => {
       menu[dish.served_on] = menu[dish.served_on] || { [dish.meal]: [] };
-      menu[dish.served_on][dish.meal].push(dish);
+      if (menu[dish.served_on][dish.meal]) {
+        menu[dish.served_on][dish.meal].push(dish);
+      }
       hasMeal[dish.meal] = true;
     });
 

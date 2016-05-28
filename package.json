@@ -1,6 +1,6 @@
 {
   "name": "foody",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "slackbot to know what is for lunch",
   "main": "index.js",
   "dependencies": {
