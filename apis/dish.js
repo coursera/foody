@@ -21,7 +21,7 @@ module.exports.setup = (router, db, auth) => {
       order by dish.served_on desc, meal desc
       limit $items offset $offset`;
 
-    db.getAll(sql, { $items: items, $offset: offset }).then((dishes) => {
+    db.getAll(sql, { $items: items, $offset: items * offset }).then((dishes) => {
       res.json(dishes);
     }).catch((err) => {
       res.status(500).send(err);
