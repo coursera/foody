@@ -56,7 +56,7 @@ module.exports = (config) => {
   require('./apis/meal').setup(router, db, auth);
   require('./apis/menu').setup(router, db, auth);
 
-  router.get('/menu', (req, res) => {
+  router.get('/menu/:week?', (req, res) => {
     res.write(
       pug.renderFile(path.join(__dirname, 'assets', 'templates', 'index.pug'),
         {

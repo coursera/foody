@@ -166,8 +166,10 @@ class Menu extends React.Component {
 
     this.state.meals.sort((a, b) => moment(b.starttime).hour() < moment(a.starttime).hour()).forEach((meal) => {
       if (hasMeal[meal.id] || meal.required) {
-        rows.push(<TableRow key={'meal' + meal.id}>
-          <TableRowColumn style={ { borderRight: `solid 1px ${theme.tableRow.borderColor}`, padding: '10px', textAlign: 'center' } }>
+        rows.push(<TableRow key={'meal' + meal.id} className={meal.required ? 'mealRequired' : 'mealNotRequired'}>
+          <TableRowColumn
+            style={ { borderRight: `solid 1px ${theme.tableRow.borderColor}`, padding: '10px', textAlign: 'center' } }
+          >
             <div style={ { fontWeight: 'bold' } }>{meal.title}</div>
             <div>{moment(meal.starttime).format('h:mm a')} - {moment(meal.endtime).format('h:mm a')}</div>
           </TableRowColumn>
