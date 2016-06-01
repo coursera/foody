@@ -44,8 +44,8 @@ const what = new Command(matcher, (slack, db, config) => {
   return new Promise((resolve /* , reject */) => {
     db.getAll(mealSql).then(meals => {
       const foundMeal = meals.findIndex(one => (new RegExp(one.title, 'i')).test(command));
-      const days = moment.weekdays().concat('today', 'tomorrow', 'yesterday');
-      const foundTime = days.findIndex(one => (new RegExp(one + '|' + one.replace('day', '?') + '|' + one.substring(0, 3), 'i')).test(command));
+      const days = moment.weekdays().concat(['today', 'tomorrow', 'yesterday']);
+      const foundTime = days.findIndex(one => (new RegExp(one + '|' + one.substring(0, 4) + '|' + one.substring(0, 3), 'i')).test(command));
       const wordsLength = command.split(' ').length;
 
       const date = moment();
