@@ -61,7 +61,7 @@ const what = new Command(matcher, (slack, db, config) => {
       }
 
       if (foundMeal !== -1 && wordsLength <= 7) {
-        const dishesParams = { $whereDate: date.format('Y-MM-D'), $mealId: meals[foundMeal].id };
+        const dishesParams = { $whereDate: date.format('Y-MM-DD'), $mealId: meals[foundMeal].id };
         resolve(new Message('let me see what i can find ...'));
 
         Promise.all([
@@ -123,10 +123,10 @@ const what = new Command(matcher, (slack, db, config) => {
           response.sendTo(slack.user_name, new Message(err.toString()), config.slack);
         });
       } else if (foundTime !== -1 && wordsLength === 1) {
-        db.getAll(dishesTimeSql, { $whereDate: date.format('Y-MM-D') })
+        db.getAll(dishesTimeSql, { $whereDate: date.format('Y-MM-DD') })
           .then(mealGroup => {
             let verb;
-            const past = date.isBefore(moment().format('Y-MM-D'));
+            const past = date.isBefore(moment().format('Y-MM-DD'));
 
             if (past) {
               verb = mealGroup.length > 1 || mealGroup.length === 0 ? 'were' : 'was';

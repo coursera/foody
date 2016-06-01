@@ -166,13 +166,17 @@ class Menu extends React.Component {
 
     this.state.meals.sort((a, b) => moment(b.starttime).hour() < moment(a.starttime).hour()).forEach((meal) => {
       if (hasMeal[meal.id] || meal.required) {
-        rows.push(<TableRow key={'meal' + meal.id} className={meal.required ? 'mealRequired' : 'mealNotRequired'}>
+        rows.push(<TableRow key={'meal-header' + meal.id} className={meal.required ? 'mealRequiredHeader' : 'mealNotRequiredHeader'}>
           <TableRowColumn
             style={ { borderRight: `solid 1px ${theme.tableRow.borderColor}`, padding: '10px', textAlign: 'center' } }
+            colSpan="5"
           >
-            <div style={ { fontWeight: 'bold' } }>{meal.title}</div>
-            <div>{moment(meal.starttime).format('h:mm a')} - {moment(meal.endtime).format('h:mm a')}</div>
+            <span style={ { fontWeight: 'bold' } }>{meal.title}</span>
+            <span> ({moment(meal.starttime).format('h:mm a')} - {moment(meal.endtime).format('h:mm a')})</span>
           </TableRowColumn>
+        </TableRow>);
+
+        rows.push(<TableRow key={'meal' + meal.id} className={meal.required ? 'mealRequired' : 'mealNotRequired'}>
           {mealDates.map((date, index) => this.buildDishesColumn(menu, meal, date, index))}
         </TableRow>);
       }
@@ -193,15 +197,12 @@ class Menu extends React.Component {
     </div>);
 
     return (
-      <div className="menu" style={ { width: '85%', margin: 'auto' } }>
+      <div className="menu" style={ { width: '90%', margin: 'auto' } }>
         <Paper zDepth={2}>
           <AppBar iconElementLeft={home} title={title} />
           <Table selectable={false} style= { { borderCollapse: 'collapse' }}>
             <TableHeader key="header" displaySelectAll={false} adjustForCheckbox={false}>
               <TableRow>
-                <TableHeaderColumn style={ { textAlign: 'center', borderRight: `solid 1px ${theme.tableRow.borderColor}` } }>
-                  Meal
-                </TableHeaderColumn>
                 {mealDates.map((date, index) => {
                   return (
                   <TableHeaderColumn key={index} style={ {
@@ -220,9 +221,6 @@ class Menu extends React.Component {
             </TableBody>
           </Table>
         </Paper>
-        <div className="menuFooter" style={ { textAlign: 'center', fontSize: '27px', marginTop: '20px', display: 'none' } }>
-          {window.location.href}
-        </div>
       </div>
     );
   }
