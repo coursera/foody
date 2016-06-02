@@ -111,7 +111,7 @@ class MealRow extends React.Component {
     return (<AppRow editing={editable} edit={(cell) => this.props.triggerEdit(cell) }>
       <TableRow selected={editable} style={ { border: 'none' } }>
         <TableRowColumn style={this.props.style.checkbox}>
-          <Checkbox name="c" checked={this.props.checked} onCheck={(e, checked) => checked ? this.props.triggerCancel() : this.props.triggerEdit()} />
+          <Checkbox checked={this.props.checked} onCheck={(e, checked) => checked ? this.props.triggerEdit() : this.props.triggerCancel()} />
         </TableRowColumn>
         {colTitle}
         {colStart}

@@ -45,7 +45,7 @@ class MealTable extends React.Component {
 
     return (
       <AppTable
-        editing={this.props.checked.length > 1}
+        editing={this.props.checked.length > 0}
         title="Meals"
         addItem={() => this.props.triggerAdd()}
         removeItems={() => this.props.triggerRemove() }
