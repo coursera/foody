@@ -17,7 +17,7 @@ const matcher = (command) => {
 const mode = (arr, field) => {
   return arr.sort((a, b) =>
     arr.filter(v => v[field] === a[field]).length - arr.filter(v => v[field] === b[field]).length
-  ).pop();
+  ).pop()[field];
 };
 
 const what = new Command(matcher, (slack, db, config) => {
