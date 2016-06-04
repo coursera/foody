@@ -49,6 +49,7 @@ class Menu extends React.Component {
   getDates() {
     const week = this.props.params.week === undefined ? moment().week() : this.props.params.week;
     return {
+      week,
       today: moment().format('YYYY-MM-DD'),
       from: moment().week(week).day('Monday').format('YYYY-MM-DD'),
       to: moment().week(week).day('Friday').format('YYYY-MM-DD'),
@@ -96,7 +97,8 @@ class Menu extends React.Component {
     };
 
     if (dishes.length) {
-      const caterer = this.state.caterers[this.mode(menu[date][meal.id], 'caterer')];
+      const catererMode = this.mode(menu[date][meal.id], 'caterer');
+      const caterer = this.state.caterers.find(one => one.id === catererMode);
 
       return (
         <TableRowColumn key={date + index} style={ rowStyle }>
@@ -144,11 +146,11 @@ class Menu extends React.Component {
   }
 
   mode(arr, field) {
-    const find = arr.sort((a, b) =>
+    const sorted = arr.sort((a, b) =>
       arr.filter(v => v[field] === a[field]).length - arr.filter(v => v[field] === b[field]).length
     ).pop();
 
-    return find ? find[field] : null;
+    return sorted ? sorted[field] : null;
   }
 
   render() {
@@ -207,11 +209,11 @@ class Menu extends React.Component {
         mode="landscape"
         name="menu-date"
         autoOk
-        value={moment(dates.from).toDate()}
+        value={moment().week().toString() === dates.week ? moment(dates.today).toDate() : moment(dates.from).toDate()}
         textFieldStyle={ { fontSize: '28px', height: 'auto', width: '50%' } }
         inputStyle={ { color: theme.palette.canvasColor, cursor: 'pointer' } }
         onChange={(e, date) => this.changeWeek(date) }
-        formatDate={() => moment(dates.from).format('[Menu for] MMM D - ') + moment(dates.to).format('D, Y')}
+        formatDate={() => moment(dates.from).format('[Menu for] MMM D - ') + moment(dates.to).format('MMM D, Y')}
       />
     </div>);
 
@@ -244,7 +246,7 @@ class Menu extends React.Component {
         <Paper zDepth={2} style={ { marginTop: '20px' } }>
           <AppBar
             iconElementLeft={home}
-            title={moment(dates.from).format('[Special Menu for] MMM D - ') + moment(dates.to).format('D, Y')}
+            title={moment(dates.from).format('[Special Menu for] MMM D - ') + moment(dates.to).format('MMM D, Y')}
             style= { { backgroundColor: theme.palette.accent1Color } }
           />
           <Table selectable={false} style= { { borderCollapse: 'collapse' }}>
