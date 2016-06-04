@@ -14,6 +14,12 @@ const matcher = (command) => {
   return words.length <= 7 && (what || when);
 };
 
+const mode = (arr, field) => {
+  return arr.sort((a, b) =>
+    arr.filter(v => v[field] === a[field]).length - arr.filter(v => v[field] === b[field]).length
+  ).pop();
+};
+
 const what = new Command(matcher, (slack, db, config) => {
   const command = slack.text || '';
   const mealSql = 'select * from meal';
@@ -77,7 +83,7 @@ const what = new Command(matcher, (slack, db, config) => {
 
           if (dishes.length) {
             const meal = meals.find(one => one.id === dishes[0].meal);
-            const caterer = caterers.find(one => one.id === dishes[0].caterer);
+            const caterer = caterers.find(one => one.id === mode(dishes, 'caterer'));
             const catererLink = `<${caterer.website}|${caterer.title}>`;
             const mealTime = `${moment(meal.starttime).format('h:mm a')} - ${moment(meal.endtime).format('h:mm a')}`;
             const mealLink = `<${config.www.url}/${config.www.base}/menu/${date.week()}|${date.format('dddd')}'s>`;

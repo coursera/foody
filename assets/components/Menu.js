@@ -96,8 +96,13 @@ class Menu extends React.Component {
     };
 
     if (dishes.length) {
+      const caterer = this.state.caterers[this.mode(menu[date][meal.id], 'caterer')];
+
       return (
         <TableRowColumn key={date + index} style={ rowStyle }>
+          Caterer: <a href={caterer.website}>{caterer.title}</a>
+          <br />
+          <br />
           {dishes.map((dish, i) => {
             return (<div key={'dish' + meal.id + i} style={ { whiteSpace: 'normal', marginBottom: '12px' } }>
                 <div>
@@ -138,12 +143,21 @@ class Menu extends React.Component {
         </span>);});
   }
 
+  mode(arr, field) {
+    const find = arr.sort((a, b) =>
+      arr.filter(v => v[field] === a[field]).length - arr.filter(v => v[field] === b[field]).length
+    ).pop();
+
+    return find ? find[field] : null;
+  }
+
   render() {
     const dates = this.getDates();
     const hasMeal = {};
     const menu = {};
     const mealDates = [];
-    const rows = [];
+    const requiredRows = [];
+    const nonRequiredRows = [];
     const days = moment(dates.to).diff(dates.from, 'days');
 
     for (let i = 0; i <= days; i++) {
@@ -166,9 +180,14 @@ class Menu extends React.Component {
 
     this.state.meals.sort((a, b) => moment(b.starttime).hour() < moment(a.starttime).hour()).forEach((meal) => {
       if (hasMeal[meal.id] || meal.required) {
-        rows.push(<TableRow key={'meal-header' + meal.id} className={meal.required ? 'mealRequiredHeader' : 'mealNotRequiredHeader'}>
+        const rows = meal.required ? requiredRows : nonRequiredRows;
+        rows.push(<TableRow key={'meal-header' + meal.id}>
           <TableRowColumn
-            style={ { borderRight: `solid 1px ${theme.tableRow.borderColor}`, padding: '10px', textAlign: 'center' } }
+            style={ {
+              backgroundColor: theme.palette.accent2Color,
+              borderRight: `solid 1px ${theme.tableRow.borderColor}`,
+              padding: '10px',
+              textAlign: 'center' } }
             colSpan="5"
           >
             <span style={ { fontWeight: 'bold' } }>{meal.title}</span>
@@ -176,7 +195,7 @@ class Menu extends React.Component {
           </TableRowColumn>
         </TableRow>);
 
-        rows.push(<TableRow key={'meal' + meal.id} className={meal.required ? 'mealRequired' : 'mealNotRequired'}>
+        rows.push(<TableRow key={'meal' + meal.id}>
           {mealDates.map((date, index) => this.buildDishesColumn(menu, meal, date, index))}
         </TableRow>);
       }
@@ -198,7 +217,7 @@ class Menu extends React.Component {
 
     return (
       <div className="menu" style={ { width: '90%', margin: 'auto' } }>
-        <Paper zDepth={2}>
+        <Paper zDepth={2} className="mainMenu">
           <AppBar iconElementLeft={home} title={title} />
           <Table selectable={false} style= { { borderCollapse: 'collapse' }}>
             <TableHeader key="header" displaySelectAll={false} adjustForCheckbox={false}>
@@ -217,10 +236,39 @@ class Menu extends React.Component {
               </TableRow>
             </TableHeader>
             <TableBody displayRowCheckbox={false}>
-              {rows}
+              {requiredRows}
             </TableBody>
           </Table>
         </Paper>
+
+        <Paper zDepth={2} style={ { marginTop: '20px' } }>
+          <AppBar
+            iconElementLeft={home}
+            title={moment(dates.from).format('[Special Menu for] MMM D - ') + moment(dates.to).format('D, Y')}
+            style= { { backgroundColor: theme.palette.accent1Color } }
+          />
+          <Table selectable={false} style= { { borderCollapse: 'collapse' }}>
+            <TableHeader key="header" displaySelectAll={false} adjustForCheckbox={false}>
+              <TableRow>
+                {mealDates.map((date, index) => {
+                  return (
+                  <TableHeaderColumn key={index} style={ {
+                    textAlign: 'center',
+                    borderRight: index < 4 ? `solid 1px ${theme.tableRow.borderColor}` : 'none',
+                    backgroundColor: dates.today === date ? theme.palette.accent2Color : theme.palette.canvasColor,
+                  } }
+                  >
+                    {moment(date).format('ddd')}
+                  </TableHeaderColumn>);
+                })}
+              </TableRow>
+            </TableHeader>
+            <TableBody displayRowCheckbox={false}>
+              {nonRequiredRows}
+            </TableBody>
+          </Table>
+        </Paper>
+
       </div>
     );
   }
