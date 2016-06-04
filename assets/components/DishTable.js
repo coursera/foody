@@ -14,6 +14,7 @@ class DishTable extends React.Component {
     params: React.PropTypes.object,
     location: React.PropTypes.object,
     triggerAdd: React.PropTypes.func.isRequired,
+    triggerAddMany: React.PropTypes.func.isRequired,
     triggerRemove: React.PropTypes.func.isRequired,
     removeItems: React.PropTypes.func.isRequired,
     updateItem: React.PropTypes.func.isRequired,
@@ -30,6 +31,8 @@ class DishTable extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      addItemsOpen: false,
+      addItemsValue: '',
       items: [],
       restrictions: [],
       caterers: [],
@@ -67,6 +70,7 @@ class DishTable extends React.Component {
         editing={this.props.checked.length > 0}
         title="Dishes"
         addItem={(...a) => this.props.triggerAdd(...a)}
+        addItems={(...a) => this.props.triggerAddMany(...a)}
         removeItems={(...a) => this.props.triggerRemove(...a) }
         pathname="dishes"
         params={this.props.params}

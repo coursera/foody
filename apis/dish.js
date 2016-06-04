@@ -1,4 +1,5 @@
-"use strict";
+/* eslint-disable strict, camelcase */
+'use strict';
 const moment = require('moment');
 
 module.exports.setup = (router, db, auth) => {
@@ -28,7 +29,7 @@ module.exports.setup = (router, db, auth) => {
     });
   });
 
-  router.put('/api/dish', auth, (req, res) => {
+  const createOne = (req, res) => {
     const title = req.body.title;
     const description = req.body.description || '';
     const caterer = req.body.caterer;
@@ -42,7 +43,7 @@ module.exports.setup = (router, db, auth) => {
         $description: description,
         $caterer: caterer,
         $served_on: moment(served_on).format('YYYY-MM-DD'),
-        $meal: meal
+        $meal: meal,
       };
       const sql1 = `insert
         into dish
@@ -67,6 +68,84 @@ module.exports.setup = (router, db, auth) => {
         });
     } else {
       res.sendStatus(400);
+    }
+  };
+
+  const createMany = (req, res) => {
+    const restrictionSql = `select * from restriction`;
+    const catererSql = `select * from caterer`;
+    const mealSql = `select * from meal`;
+
+    Promise.all([
+      db.getAll(restrictionSql),
+      db.getAll(catererSql),
+      db.getAll(mealSql),
+      db.getOne('select id from dish order by id desc limit 1'),
+    ]).then((results) => {
+      const restrictions = results[0];
+      const caterers = results[1];
+      const meals = results[2];
+      const highId = results[3] ? results[3].id : 0;
+      const dishes = req.body.dishes;
+      const values = [];
+      const values2 = [];
+      const params = [];
+      const params2 = [];
+
+      if (dishes.length) {
+        dishes.map((dish, index) => {
+          const caterer = caterers.find(one => (new RegExp(`^\s*${one.title}\s*`, 'i').test(dish.caterer)));
+          const meal = meals.find(one => (new RegExp(`^\s*${one.title}\s*`, 'i').test(dish.meal)));
+
+          params.push(
+            highId + index + 1,
+            dish.title || '',
+            dish.description || '',
+            caterer ? caterer.id : 0,
+            moment(dish.served_on).format('YYYY-MM-DD'),
+            meal ? meal.id : 0
+          );
+          values.push('(?, ?, ?, ?, ?, ?)');
+        });
+
+        const sql1 = `insert
+          into dish
+          (id, title, description, caterer, served_on, meal)
+          values
+          ${values.join(', ')}`;
+
+        db.run(sql1, params)
+          .then(() => {
+            dishes.map((dish, index) => {
+              dish.restrictions.map((diet) => {
+                const restriction = restrictions.find(one => (new RegExp(`^\s*${one.title}\s*`, 'i').test(diet)));
+                if (restriction) {
+                  params2.push(highId + index + 1, restriction.id);
+                  values2.push('(?, ?)');
+                }
+              });
+            });
+            const sql2 = `insert into dish_to_restriction (dish_id, restriction_id) values ${values2.join(', ')}`;
+
+            return db.run(sql2, params2);
+          }).then((stats) => {
+            res.json({ id: stats.lastID });
+          }).catch((err) => {
+            res.status(500).send(err);
+          });
+      } else {
+        res.status(400).send({ message: 'no dishes were added' });
+      }
+    }).catch((err) => {
+      res.status(500).send(err);
+    });
+  };
+
+  router.put('/api/dish', auth, (req, res) => {
+    if (req.query.many) {
+      createMany(req, res);
+    } else {
+      createOne(req, res);
     }
   });
 

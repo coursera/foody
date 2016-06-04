@@ -6,6 +6,8 @@ import NoteAddIcon from 'material-ui/svg-icons/action/note-add';
 import DeleteIcon from 'material-ui/svg-icons/action/delete';
 import HomeIcon from 'material-ui/svg-icons/action/home';
 import IconButton from 'material-ui/IconButton';
+import IconMenu from 'material-ui/IconMenu';
+import MenuItem from 'material-ui/MenuItem';
 import theme from '../style/theme';
 import ArrowLeft from 'material-ui/svg-icons/hardware/keyboard-arrow-left';
 import ArrowRight from 'material-ui/svg-icons/hardware/keyboard-arrow-right';
@@ -21,6 +23,7 @@ class AppTable extends React.Component {
     title: React.PropTypes.string,
     children: React.PropTypes.node,
     addItem: React.PropTypes.func,
+    addItems: React.PropTypes.func,
     removeItems: React.PropTypes.func,
     pathname: React.PropTypes.string,
     count: React.PropTypes.number,
@@ -40,9 +43,18 @@ class AppTable extends React.Component {
     const home = this.props.editing ?
       <IconButton onClick={() => this.context.router.push('')}><div><HomeIcon hoverColor={theme.palette.accent1Color} color={theme.palette.primary1Color}/></div></IconButton> :
       <IconButton onClick={() => this.context.router.push('')}><div><HomeIcon hoverColor={theme.palette.accent1Color} color={theme.palette.canvasColor} /></div></IconButton>;
-    const icon = this.props.editing ?
-      <IconButton onClick={() => this.props.removeItems()}><div><DeleteIcon hoverColor={theme.palette.accent1Color} color={theme.palette.primary1Color}/></div></IconButton> :
+    const addIcon = this.props.addItems ?
+      <IconMenu
+        iconButtonElement={<IconButton><NoteAddIcon /></IconButton>}
+        anchorOrigin={{ horizontal: 'left', vertical: 'top' }}
+        targetOrigin={{ horizontal: 'left', vertical: 'top' }}
+      >
+        <MenuItem primaryText="Add One" onClick={() => this.props.addItem()}/>
+        <MenuItem primaryText="Add Many" onClick={() => this.props.addItems()}/>
+      </IconMenu> :
       <IconButton onClick={() => this.props.addItem()}><div><NoteAddIcon hoverColor={theme.palette.accent1Color} color={theme.palette.canvasColor}/></div></IconButton>;
+    const icon = this.props.editing ?
+      <IconButton onClick={() => this.props.removeItems()}><div><DeleteIcon hoverColor={theme.palette.accent1Color} color={theme.palette.primary1Color}/></div></IconButton> : addIcon;
 
     return (
       <div style={ { width: '850px', margin: 'auto' } }>

@@ -1,4 +1,7 @@
 import React from 'react';
+import Dialog from 'material-ui/Dialog';
+import FlatButton from 'material-ui/FlatButton';
+import TextField from 'material-ui/TextField';
 import authorization from 'authorization';
 
 const ItemTable = (Component, apiPath) => class extends React.Component {
@@ -18,6 +21,7 @@ const ItemTable = (Component, apiPath) => class extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      addItemsDialogOpen: false,
       checked: [],
       edit: {
         on: false,
@@ -36,6 +40,10 @@ const ItemTable = (Component, apiPath) => class extends React.Component {
       prevProps.location.query.items !== this.props.location.query.items) {
       this.fetchItems();
     }
+  }
+
+  refreshItems() {
+    this.fetchItems();
   }
 
   fetchItems() {
@@ -86,7 +94,7 @@ const ItemTable = (Component, apiPath) => class extends React.Component {
     this.setState({ edit: { on: true, item, column: column || 1 }, checked: !column ? this.addChecked(item) : [item] });
   }
 
-  removeItems(items) {
+  removeItems() {
     this.setState({ edit: { on: false, item: {}, column: null }, checked: [] });
     this.fetchItems();
   }
@@ -155,16 +163,24 @@ const ItemTable = (Component, apiPath) => class extends React.Component {
     this.setState({ edit: { on: true, item }, checked: [item] });
   }
 
-  triggerRemove() {
-    const fetchOptions = {
+  triggerAddMany() {
+    this.setState({ addItemsDialogOpen: true });
+  }
+
+  getFetchOptions(method, body) {
+    return {
       headers: new Headers({
         'Content-Type': 'application/json',
         'Authorization': authorization,
       }),
-      method: 'DELETE',
-      body: JSON.stringify({ ids: this.state.checked.map(item => item.id) }),
+      method,
+      body: JSON.stringify(body),
       credentials: 'same-origin',
     };
+  }
+
+  triggerRemove() {
+    const fetchOptions = this.getFetchOptions('DELETE', { ids: this.state.checked.map(item => item.id) });
     fetch(`api/${apiPath}`, fetchOptions)
       .then((response) => {
         if (response.status === 200) {
@@ -178,18 +194,71 @@ const ItemTable = (Component, apiPath) => class extends React.Component {
       });
   }
 
+  addManyItems() {
+    let jsonPut;
+
+    try {
+      jsonPut = JSON.parse(this.refs.jsonItems.getValue());
+    } catch (err) {
+      alert('your items are not properly JSON formatted!');
+      throw new Error(err);
+    }
+
+    const formValues = { dishes: jsonPut };
+    const fetchOptions = this.getFetchOptions('PUT', formValues);
+    fetch(`api/${apiPath}?many=true`, fetchOptions)
+      .then((response) => {
+        if (response.status === 200) {
+          response.json().then(() => {
+            this.setState({ addItemsDialogOpen: false });
+            this.refreshItems();
+          });
+        } else {
+          /* eslint-disable no-alert */
+          response.text().then((text) => alert(text));
+        }
+      }).catch((err) => {
+        throw new Error(err);
+      });
+  }
+
   render() {
     const props = Object.assign({}, this.props, { ref: instance => this.componentInstance = instance });
-    return (<Component
-      {...props}
-      {...this.state}
-      triggerAdd={(...a) => this.triggerAdd(...a)}
-      triggerRemove={() => this.triggerRemove()}
-      updateItem={(...a) => this.updateItem(...a)}
-      addItem={(...a) => this.addItem(...a)}
-      removeItems={(...a) => this.removeItems(...a)}
-      editItem={(...a) => this.editItem(...a)}
-    />);
+    return (<div>
+      <Dialog
+        title="Add Many"
+        actions={[
+          <FlatButton label="Cancel" onTouchTap={() => this.setState({ addItemsDialogOpen: false })} />,
+          <FlatButton label="Submit" onTouchTap={() => this.addManyItems()} />,
+        ]}
+        modal
+        open={this.state.addItemsDialogOpen}
+        onRequestClose={this.handleClose}
+        autoScrollBodyContent
+      >
+        <TextField
+          type="text"
+          hintText="json array of items ..."
+          name="jsonItems"
+          ref="jsonItems"
+          multiLine
+          underlineShow={false}
+          defaultValue=""
+          style={ { width: '100%', height: '500px' } }
+        />
+      </Dialog>
+      <Component
+        {...props}
+        {...this.state}
+        triggerAdd={(...a) => this.triggerAdd(...a)}
+        triggerAddMany={(...a) => this.triggerAddMany(...a)}
+        triggerRemove={() => this.triggerRemove()}
+        updateItem={(...a) => this.updateItem(...a)}
+        addItem={(...a) => this.addItem(...a)}
+        removeItems={(...a) => this.removeItems(...a)}
+        editItem={(...a) => this.editItem(...a)}
+      />
+    </div>);
   }
 };
 
