@@ -14,7 +14,8 @@ const matcher = (command) => {
   return words.length <= 7 && (what || when);
 };
 
-const mode = (arr, field) => {
+const mode = (_arr, field) => {
+  const arr = _arr.concat();
   return arr.sort((a, b) =>
     arr.filter(v => v[field] === a[field]).length - arr.filter(v => v[field] === b[field]).length
   ).pop()[field];

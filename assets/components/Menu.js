@@ -97,7 +97,7 @@ class Menu extends React.Component {
     };
 
     if (dishes.length) {
-      const catererMode = this.mode(menu[date][meal.id], 'caterer');
+      const catererMode = this.mode(dishes, 'caterer');
       const caterer = this.state.caterers.find(one => one.id === catererMode);
 
       return (
@@ -221,7 +221,8 @@ class Menu extends React.Component {
     </Paper>);
   }
 
-  mode(arr, field) {
+  mode(_arr, field) {
+    const arr = _arr.concat();
     const sorted = arr.sort((a, b) =>
       arr.filter(v => v[field] === a[field]).length - arr.filter(v => v[field] === b[field]).length
     ).pop();
