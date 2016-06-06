@@ -85,6 +85,13 @@ class Menu extends React.Component {
       });
   }
 
+  buildCatererLine(caterer) {
+    return (<span>
+      Caterer: <a href={caterer.website}>{caterer.title}</a>
+      <br /><br />
+    </span>);
+  }
+
   buildDishesColumn(menu, meal, date, index) {
     const dishes = menu[date][meal.id];
     const dates = this.getDates();
@@ -102,9 +109,7 @@ class Menu extends React.Component {
 
       return (
         <TableRowColumn key={date + index} style={ rowStyle }>
-          Caterer: <a href={caterer.website}>{caterer.title}</a>
-          <br />
-          <br />
+          {caterer ? this.buildCatererLine(caterer) : ''}
           {dishes.map((dish, i) => {
             return (<div key={'dish' + meal.id + i} style={ { whiteSpace: 'normal', marginBottom: '12px' } }>
                 <div>
