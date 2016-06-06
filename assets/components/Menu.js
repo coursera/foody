@@ -145,6 +145,82 @@ class Menu extends React.Component {
         </span>);});
   }
 
+  buildSpecialMenu(mealDates, nonRequiredRows) {
+    const dates = this.getDates();
+    const home = <IconButton onClick={() => this.context.router.push('')}><div><HomeIcon color={theme.palette.canvasColor} hoverColor={theme.palette.primary1Color}/></div></IconButton>;
+
+    const specialMenu = (<Paper zDepth={2} style={ { marginTop: '20px' } }>
+      <AppBar
+        iconElementLeft={home}
+        title={moment(dates.from).format('[Special Menu for] MMM D - ') + moment(dates.to).format('MMM D, Y')}
+        style= { { backgroundColor: theme.palette.accent1Color } }
+      />
+      <Table selectable={false} style= { { borderCollapse: 'collapse' }}>
+        <TableHeader key="header" displaySelectAll={false} adjustForCheckbox={false}>
+          <TableRow>
+            {mealDates.map((date, index) => {
+              return (
+              <TableHeaderColumn key={index} style={ {
+                textAlign: 'center',
+                borderRight: index < 4 ? `solid 1px ${theme.tableRow.borderColor}` : 'none',
+                backgroundColor: dates.today === date ? theme.palette.accent2Color : theme.palette.canvasColor,
+              } }
+              >
+                {moment(date).format('ddd')}
+              </TableHeaderColumn>);
+            })}
+          </TableRow>
+        </TableHeader>
+        <TableBody displayRowCheckbox={false}>
+          {nonRequiredRows}
+        </TableBody>
+      </Table>
+    </Paper>);
+
+    return nonRequiredRows.length ? specialMenu : '';
+  }
+
+  buildMenu(mealDates, requiredRows) {
+    const dates = this.getDates();
+    const home = <IconButton onClick={() => this.context.router.push('')}><div><HomeIcon color={theme.palette.canvasColor} hoverColor={theme.palette.accent1Color}/></div></IconButton>;
+    const title = (<div>
+      <DatePicker
+        mode="landscape"
+        name="menu-date"
+        autoOk
+        value={moment().week().toString() === dates.week ? moment(dates.today).toDate() : moment(dates.from).toDate()}
+        textFieldStyle={ { fontSize: '28px', height: 'auto', width: '50%' } }
+        inputStyle={ { color: theme.palette.canvasColor, cursor: 'pointer' } }
+        onChange={(e, date) => this.changeWeek(date) }
+        formatDate={() => moment(dates.from).format('[Menu for] MMM D - ') + moment(dates.to).format('MMM D, Y')}
+      />
+    </div>);
+
+    return (<Paper zDepth={2} className="mainMenu">
+      <AppBar iconElementLeft={home} title={title} />
+      <Table selectable={false} style= { { borderCollapse: 'collapse' }}>
+        <TableHeader key="header" displaySelectAll={false} adjustForCheckbox={false}>
+          <TableRow>
+            {mealDates.map((date, index) => {
+              return (
+              <TableHeaderColumn key={index} style={ {
+                textAlign: 'center',
+                borderRight: index < 4 ? `solid 1px ${theme.tableRow.borderColor}` : 'none',
+                backgroundColor: dates.today === date ? theme.palette.accent2Color : theme.palette.canvasColor,
+              } }
+              >
+                {moment(date).format('ddd')}
+              </TableHeaderColumn>);
+            })}
+          </TableRow>
+        </TableHeader>
+        <TableBody displayRowCheckbox={false}>
+          {requiredRows}
+        </TableBody>
+      </Table>
+    </Paper>);
+  }
+
   mode(arr, field) {
     const sorted = arr.sort((a, b) =>
       arr.filter(v => v[field] === a[field]).length - arr.filter(v => v[field] === b[field]).length
@@ -203,74 +279,9 @@ class Menu extends React.Component {
       }
     });
 
-    const home = <IconButton onClick={() => this.context.router.push('')}><div><HomeIcon color={theme.palette.canvasColor} hoverColor={theme.palette.accent1Color}/></div></IconButton>;
-    const title = (<div>
-      <DatePicker
-        mode="landscape"
-        name="menu-date"
-        autoOk
-        value={moment().week().toString() === dates.week ? moment(dates.today).toDate() : moment(dates.from).toDate()}
-        textFieldStyle={ { fontSize: '28px', height: 'auto', width: '50%' } }
-        inputStyle={ { color: theme.palette.canvasColor, cursor: 'pointer' } }
-        onChange={(e, date) => this.changeWeek(date) }
-        formatDate={() => moment(dates.from).format('[Menu for] MMM D - ') + moment(dates.to).format('MMM D, Y')}
-      />
-    </div>);
-
-    return (
-      <div className="menu" style={ { width: '90%', margin: 'auto' } }>
-        <Paper zDepth={2} className="mainMenu">
-          <AppBar iconElementLeft={home} title={title} />
-          <Table selectable={false} style= { { borderCollapse: 'collapse' }}>
-            <TableHeader key="header" displaySelectAll={false} adjustForCheckbox={false}>
-              <TableRow>
-                {mealDates.map((date, index) => {
-                  return (
-                  <TableHeaderColumn key={index} style={ {
-                    textAlign: 'center',
-                    borderRight: index < 4 ? `solid 1px ${theme.tableRow.borderColor}` : 'none',
-                    backgroundColor: dates.today === date ? theme.palette.accent2Color : theme.palette.canvasColor,
-                  } }
-                  >
-                    {moment(date).format('ddd')}
-                  </TableHeaderColumn>);
-                })}
-              </TableRow>
-            </TableHeader>
-            <TableBody displayRowCheckbox={false}>
-              {requiredRows}
-            </TableBody>
-          </Table>
-        </Paper>
-
-        <Paper zDepth={2} style={ { marginTop: '20px' } }>
-          <AppBar
-            iconElementLeft={home}
-            title={moment(dates.from).format('[Special Menu for] MMM D - ') + moment(dates.to).format('MMM D, Y')}
-            style= { { backgroundColor: theme.palette.accent1Color } }
-          />
-          <Table selectable={false} style= { { borderCollapse: 'collapse' }}>
-            <TableHeader key="header" displaySelectAll={false} adjustForCheckbox={false}>
-              <TableRow>
-                {mealDates.map((date, index) => {
-                  return (
-                  <TableHeaderColumn key={index} style={ {
-                    textAlign: 'center',
-                    borderRight: index < 4 ? `solid 1px ${theme.tableRow.borderColor}` : 'none',
-                    backgroundColor: dates.today === date ? theme.palette.accent2Color : theme.palette.canvasColor,
-                  } }
-                  >
-                    {moment(date).format('ddd')}
-                  </TableHeaderColumn>);
-                })}
-              </TableRow>
-            </TableHeader>
-            <TableBody displayRowCheckbox={false}>
-              {nonRequiredRows}
-            </TableBody>
-          </Table>
-        </Paper>
-
+    return (<div className="menu" style={ { width: '90%', margin: 'auto' } }>
+        {this.buildMenu(mealDates, requiredRows)}
+        {this.buildSpecialMenu(mealDates, nonRequiredRows)}
       </div>
     );
   }
