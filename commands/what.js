@@ -102,21 +102,21 @@ const what = new Command(matcher, (slack, db, config) => {
                 emojified_title = emojified_title.replace(new RegExp(`(\\s+|^)${emoji}(\\s+|$)`, 'igm'), ` :${emoji}: `);
               });
 
-              const attachment = { title: emojified_title, text: '' };
-
-              if (dish.description) {
-                attachment.text += emojified_description;
-              }
+              const attachment = { text: '*' + emojified_title + '*' };
 
               if (dish.restrictions) {
                 const dishRestrictions = dish.restrictions.split(',').map(id => parseInt(id, 10));
                 const restriction = restrictions.filter(one => dishRestrictions.indexOf(one.id) !== -1);
-                const titleRestrictions = restriction.map(one => '_' + one.title + '_').join(', ');
+                const titleRestrictions = restriction.map(one => one.title.split(' ').map(word => word[0]).join('')).join(', ');
                 attachment.color = restriction[0].color;
-                attachment.text += '\n' + titleRestrictions;
+                attachment.text += ' _(' + titleRestrictions + ')_';
                 attachment.mrkdwn_in = ['text'];
               } else {
                 attachment.color = '#3F5E9D';
+              }
+
+              if (dish.description) {
+                attachment.text += '\n' + emojified_description;
               }
 
               message.addAttachment(attachment);
