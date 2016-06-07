@@ -162,7 +162,7 @@ const what = new Command(matcher, (slack, db, config) => {
   });
 });
 
-what.setHelp('[what is for] ... [on] ... ?', 'find out what is for (lunch, dinner, breakfast, etc) on (today, tomorrow, Mon-Fri).');
+what.setHelp('(lunch, dinner, breakfast, happy hour) [today, tomorrow, mon, tue, wed, thur, fri]', 'find out what is for (lunch, dinner, breakfast, happy hour) on any day of the week!');
 what.setDefault(true);
 
 module.exports = what;
