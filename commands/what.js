@@ -93,8 +93,8 @@ const what = new Command(matcher, (slack, db, config) => {
             message = new Message(text);
 
             dishes.map((dish) => {
-              let emojified_description = dish.description;
-              let emojified_title = dish.title;
+              let emojified_description = dish.description || '';
+              let emojified_title = dish.title || '';
 
               emojis.map((_emoji) => {
                 const emoji = _emoji.replace(/([+-])/g, '\\\\$1');
@@ -102,7 +102,7 @@ const what = new Command(matcher, (slack, db, config) => {
                 emojified_title = emojified_title.replace(new RegExp(`(\\s+|^)${emoji}(\\s+|$)`, 'igm'), ` :${emoji}: `);
               });
 
-              const attachment = { text: '*' + emojified_title + '*' };
+              const attachment = { text: '*' + emojified_title.trim() + '*' };
 
               if (dish.restrictions) {
                 const dishRestrictions = dish.restrictions.split(',').map(id => parseInt(id, 10));
@@ -116,7 +116,7 @@ const what = new Command(matcher, (slack, db, config) => {
               }
 
               if (dish.description) {
-                attachment.text += '\n' + emojified_description;
+                attachment.text += '\n' + emojified_description.trim();
               }
 
               message.addAttachment(attachment);
