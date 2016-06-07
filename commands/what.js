@@ -102,7 +102,10 @@ const what = new Command(matcher, (slack, db, config) => {
                 emojified_title = emojified_title.replace(new RegExp(`(\\s+|^)${emoji}(\\s+|$)`, 'igm'), ` :${emoji}: `);
               });
 
-              const attachment = { text: '*' + emojified_title.trim() + '*' };
+              const attachment = {
+                text: '*' + emojified_title.trim() + '*',
+                mrkdwn_in: ['text'],
+              };
 
               if (dish.restrictions) {
                 const dishRestrictions = dish.restrictions.split(',').map(id => parseInt(id, 10));
@@ -110,7 +113,6 @@ const what = new Command(matcher, (slack, db, config) => {
                 const titleRestrictions = restriction.map(one => one.title.split(' ').map(word => word[0]).join('')).join(', ');
                 attachment.color = restriction[0].color;
                 attachment.text += ' _(' + titleRestrictions + ')_';
-                attachment.mrkdwn_in = ['text'];
               } else {
                 attachment.color = '#3F5E9D';
               }
