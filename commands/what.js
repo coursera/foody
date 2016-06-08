@@ -98,8 +98,8 @@ const what = new Command(matcher, (slack, db, config) => {
 
               emojis.map((_emoji) => {
                 const emoji = _emoji.replace(/([+-])/g, '\\\\$1');
-                emojified_description = emojified_description.replace(new RegExp(`(\\s+|^)${emoji}(\\s+|$)`, 'igm'), ` :${emoji}: `);
-                emojified_title = emojified_title.replace(new RegExp(`(\\s+|^)${emoji}(\\s+|$)`, 'igm'), ` :${emoji}: `);
+                emojified_description = emojified_description.replace(new RegExp(`('|"|;|,|\\s+|^)${emoji}('|"|\\s+|,|;|$)`, 'igm'), ` :${emoji}: `);
+                emojified_title = emojified_title.replace(new RegExp(`('|"|;|,|\\s+|^)${emoji}('|"|;|,|\\s+|$)`, 'igm'), ` :${emoji}: `);
               });
 
               const attachment = {
