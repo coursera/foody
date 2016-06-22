@@ -276,8 +276,8 @@ class Menu extends React.Component {
     return sorted ? sorted[field] : null;
   }
 
-  updateDishes(dishes, keepAdding = false) {
-    this.setState({ dishes, dialogOpen: keepAdding });
+  updateDishes(dishes, keepAdding = false, newItem) {
+    this.setState({ dishes, dialogOpen: keepAdding, editItem: newItem || {} });
   }
 
   render() {

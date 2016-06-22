@@ -33,13 +33,31 @@ class MenuAddorEditDialog extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {
-      item: {},
-    };
+    this.state = {};
   }
 
   componentWillReceiveProps(nextProps) {
-    this.setState({ item: nextProps.item });
+    const item = nextProps.item;
+
+    this.setState({
+      id: item.id,
+      title: item.title,
+      description: item.description,
+      served_on: item.served_on,
+      caterer: item.caterer,
+      meal: item.meal,
+      restrictions: item.restrictions,
+    });
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.open === false && this.props.open === true) {
+      setTimeout(() => {
+        if (this.refs.title) {
+          this.refs.title.getInputNode().focus();
+        }
+      }, 300);
+    }
   }
 
   getFormValues() {
@@ -131,7 +149,13 @@ class MenuAddorEditDialog extends React.Component {
         if (response.status === 200) {
           response.json().then((stats) => {
             formValues.id = stats.id;
-            this.props.updateDishes(this.props.dishes.concat(formValues), keepAdding);
+            const item = {
+              served_on: formValues.served_on,
+              meal: formValues.meal,
+              caterer: formValues.caterer,
+            };
+            this.refs.title.getInputNode().focus();
+            this.props.updateDishes(this.props.dishes.concat(formValues), keepAdding, item);
           });
         } else {
           /* eslint-disable no-alert */
@@ -143,8 +167,7 @@ class MenuAddorEditDialog extends React.Component {
   }
 
   render() {
-    const item = this.state.item;
-    const adding = item.id ? false : true;
+    const adding = this.state.id ? false : true;
 
     return (
       <Dialog
@@ -171,16 +194,16 @@ class MenuAddorEditDialog extends React.Component {
                   type="text"
                   name="title"
                   ref="title"
-                  autoFocus
-                  defaultValue={item.title || ''}
-                  // onChange={ (e) => { item.title = e.target.value; this.setState({ item }); }}
+                  autoFocus={this.props.open}
+                  value={this.state.title}
                   hintText="Name of dish"
+                  onChange={(e) => this.setState({ title: e.target.value })}
                 />
               </TableRowColumn>
               <TableRowColumn>
                 <DatePicker
-                  value={item.served_on ? moment(item.served_on).toDate() : new Date()}
-                  onChange={(e, date) => { item.served_on = date; this.setState({ item }); }}
+                  value={this.state.served_on ? moment(this.state.served_on).toDate() : new Date()}
+                  onChange={(e, date) => this.setState({ served_on: date }) }
                   name="served_on"
                   ref="served_on"
                   container="inline"
@@ -191,10 +214,10 @@ class MenuAddorEditDialog extends React.Component {
               </TableRowColumn>
               <TableRowColumn>
                 <SelectField
-                  value={item.meal}
+                  value={this.state.meal}
                   name="meal"
                   ref="meal"
-                  onChange={(e, index, value) => { item.meal = value; this.setState({ item }); }}
+                  onChange={(e, index, value) => this.setState({ meal: value }) }
                   hintText="Meal"
                   menuStyle={ { overflowX: 'hidden' } }
                   labelStyle={ { paddingLeft: '0px' } }
@@ -214,16 +237,16 @@ class MenuAddorEditDialog extends React.Component {
                   ref="description"
                   multiLine
                   style={ { width: '100%' } }
-                  defaultValue={item.description || ''}
-                  // onChange={ (e) => { item.description = e.target.value; this.setState({ item }); }}
+                  value={this.state.description || ''}
+                  onChange={(e) => this.setState({ description: e.target.value })}
                 />
               </TableRowColumn>
               <TableRowColumn>
                 <SelectField
-                  value={item.caterer}
+                  value={this.state.caterer}
                   name="caterer"
                   ref="caterer"
-                  onChange={(e, index, value) => { item.caterer = value; this.setState({ item }); }}
+                  onChange={(e, index, value) => this.setState({ caterer: value })}
                   hintText="Caterer"
                   menuStyle={ { overflowX: 'hidden' } }
                   labelStyle={ { paddingLeft: '0px' } }
@@ -240,8 +263,8 @@ class MenuAddorEditDialog extends React.Component {
                       label={diet.title}
                       name={`restriction${diet.id}`}
                       ref={`restriction${diet.id}`}
-                      checked={(item.restrictions || []).indexOf(diet.id.toString()) !== -1}
-                      onCheck={() => { item.restrictions = this.getRestrictionsValue().join(','); this.setState({ item }); }}
+                      checked={(this.state.restrictions || []).indexOf(diet.id.toString()) !== -1}
+                      onCheck={() => this.setState({ restrictions: this.getRestrictionsValue().join(',') })}
                     />
                   );
                 })}
