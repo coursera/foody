@@ -1,5 +1,4 @@
 import React from 'react';
-// import { Link } from 'react-router';
 import moment from 'moment';
 import authorization from 'authorization';
 import DatePicker from 'material-ui/DatePicker';
@@ -12,8 +11,13 @@ import Table from 'material-ui/Table/Table';
 import Paper from 'material-ui/Paper';
 import AppBar from 'material-ui/AppBar';
 import IconButton from 'material-ui/IconButton';
+import IconMenu from 'material-ui/IconMenu';
 import theme from '../style/theme';
 import HomeIcon from 'material-ui/svg-icons/action/home';
+import NoteAddIcon from 'material-ui/svg-icons/action/note-add';
+import InputIcon from 'material-ui/svg-icons/action/input';
+import MenuItem from 'material-ui/MenuItem';
+import MenuAddorEditDialog from './MenuAddorEditDialog';
 
 class Menu extends React.Component {
   static displayName = 'Menu'
@@ -33,6 +37,8 @@ class Menu extends React.Component {
       dishes: [],
       caterers: [],
       restrictions: [],
+      dialogOpen: false,
+      editItem: {},
     };
   }
 
@@ -56,23 +62,25 @@ class Menu extends React.Component {
     };
   }
 
-  changeWeek(date) {
-    const week = moment(date).week();
-    if (week !== this.props.params.week) {
-      this.context.router.push(`/menu/${week}`);
-    }
-  }
-
-  fetchItems() {
-    const fetchOptions = {
+  getFetchOptions(method, body) {
+    const options = {
       headers: new Headers({
         'Content-Type': 'application/json',
         'Authorization': authorization,
       }),
-      method: 'GET',
+      method,
       credentials: 'same-origin',
     };
 
+    if (body) {
+      options.body = JSON.stringify(body);
+    }
+
+    return options;
+  }
+
+  fetchItems() {
+    const fetchOptions = this.getFetchOptions('GET');
     const dates = this.getDates();
     const url = `api/menu?from=${dates.from}&to=${dates.to}&withDishes=1`;
 
@@ -83,6 +91,14 @@ class Menu extends React.Component {
       }).catch((err) => {
         throw new Error(err);
       });
+  }
+
+
+  changeWeek(date) {
+    const week = moment(date).week();
+    if (week !== this.props.params.week) {
+      this.context.router.push(`/menu/${week}`);
+    }
   }
 
   buildCatererLine(caterer) {
@@ -111,7 +127,13 @@ class Menu extends React.Component {
         <TableRowColumn key={date + index} style={ rowStyle }>
           {caterer ? this.buildCatererLine(caterer) : ''}
           {dishes.map((dish, i) => {
-            return (<div key={'dish' + meal.id + i} style={ { whiteSpace: 'normal', marginBottom: '12px' } }>
+            return (
+              <div
+                key={'dish' + meal.id + i}
+                style={ { whiteSpace: 'normal', marginBottom: '12px', cursor: authorization ? 'pointer' : 'default' }}
+                className={authorization ? 'dishEditable' : ''}
+                onClick={() => authorization ? this.setState({ editItem: dish, dialogOpen: true }) : null}
+              >
                 <div>
                   <span style={ { fontWeight: 'bold' } }>{dish.title}</span>
                   <span> {this.buildRestrictions(dish)}</span>
@@ -188,6 +210,21 @@ class Menu extends React.Component {
   buildMenu(mealDates, requiredRows) {
     const dates = this.getDates();
     const home = <IconButton onClick={() => this.context.router.push('')}><div><HomeIcon color={theme.palette.canvasColor} hoverColor={theme.palette.accent1Color}/></div></IconButton>;
+    const add = (
+      <IconMenu
+        iconButtonElement={<IconButton><NoteAddIcon hoverColor={theme.palette.accent1Color} color={theme.palette.canvasColor}/></IconButton>}
+        anchorOrigin={{ horizontal: 'left', vertical: 'top' }}
+        targetOrigin={{ horizontal: 'left', vertical: 'top' }}
+      >
+        <MenuItem primaryText="Add a dish" onClick={() => this.setState({ editItem: {}, dialogOpen: true })}/>
+        <MenuItem primaryText="Manage dishes" onClick={() => this.context.router.push('/dishes')}/>
+        <MenuItem primaryText="Manage caterers" onClick={() => this.context.router.push('/caterers')}/>
+        <MenuItem primaryText="Manage meals" onClick={() => this.context.router.push('/meals')}/>
+        <MenuItem primaryText="Manage restrictions" onClick={() => this.context.router.push('/restrictions')}/>
+      </IconMenu>
+    );
+    const login = <IconButton onClick={() => window.location.href = this.context.router.createHref('', '') + 'login'}><div><InputIcon hoverColor={theme.palette.accent1Color} color={theme.palette.canvasColor}/></div></IconButton>;
+
     const title = (<div>
       <DatePicker
         mode="landscape"
@@ -202,7 +239,11 @@ class Menu extends React.Component {
     </div>);
 
     return (<Paper zDepth={2} className="mainMenu">
-      <AppBar iconElementLeft={home} title={title} />
+      <AppBar
+        iconElementLeft={home}
+        iconElementRight={authorization ? add : login}
+        title={title}
+      />
       <Table selectable={false} style= { { borderCollapse: 'collapse' }}>
         <TableHeader key="header" displaySelectAll={false} adjustForCheckbox={false}>
           <TableRow>
@@ -233,6 +274,10 @@ class Menu extends React.Component {
     ).pop();
 
     return sorted ? sorted[field] : null;
+  }
+
+  updateDishes(dishes, keepAdding = false) {
+    this.setState({ dishes, dialogOpen: keepAdding });
   }
 
   render() {
@@ -286,6 +331,15 @@ class Menu extends React.Component {
     });
 
     return (<div className="menu" style={ { width: '90%', margin: 'auto' } }>
+        <MenuAddorEditDialog
+          caterers={this.state.caterers}
+          restrictions={this.state.restrictions}
+          dishes={this.state.dishes}
+          meals={this.state.meals}
+          updateDishes={(...a) => this.updateDishes(...a)}
+          open={this.state.dialogOpen}
+          item={this.state.editItem}
+        />
         {this.buildMenu(mealDates, requiredRows)}
         {this.buildSpecialMenu(mealDates, nonRequiredRows)}
       </div>

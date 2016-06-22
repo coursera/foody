@@ -1,4 +1,4 @@
-"use strict";
+'use strict'; // eslint-disable-line strict
 
 const express = require('express');
 const router = express.Router({ strict: true }); // eslint-disable-line new-cap
@@ -11,7 +11,6 @@ const pug = require('pug');
 const session = require('express-session');
 
 module.exports = (config) => {
-
   db.connect(config.database); // kick off sqlite connection
 
   router.use('/www', express.static(path.join(__dirname, 'www')));
@@ -48,6 +47,13 @@ module.exports = (config) => {
   });
 
   const auth = passport.authenticate('basic');
+  const authOnLogin = (req, res, next) => {
+    if (req.session.login) {
+      auth(req, res, next);
+    } else {
+      next();
+    }
+  };
 
   require('./apis/caterer').setup(router, db, auth);
   require('./apis/dish').setup(router, db, auth);
@@ -56,17 +62,34 @@ module.exports = (config) => {
   require('./apis/meal').setup(router, db, auth);
   require('./apis/menu').setup(router, db, auth);
 
-  router.get('/menu/:week?', (req, res) => {
+  router.get('/', authOnLogin, (req, res) => {
     res.write(
       pug.renderFile(path.join(__dirname, 'assets', 'templates', 'index.pug'),
         {
+          authorization: req.headers.authorization,
           base: `/${config.www.base}`,
           config,
         }));
     res.end();
   });
 
-  router.get('/*', auth, (req, res) => {
+  router.get('/menu/:week?', authOnLogin, (req, res) => {
+    res.write(
+      pug.renderFile(path.join(__dirname, 'assets', 'templates', 'index.pug'),
+        {
+          authorization: req.headers.authorization,
+          base: `/${config.www.base}`,
+          config,
+        }));
+    res.end();
+  });
+
+  router.get('/login', auth, (req, res) => {
+    req.session.login = 1;
+    res.redirect(`/${config.www.base}`);
+  });
+
+  router.get(/\/(dishes|caterers|meals|restrictions)/, auth, (req, res) => {
     res.write(
       pug.renderFile(path.join(__dirname, 'assets', 'templates', 'index.pug'),
         {

@@ -233,7 +233,6 @@ const ItemTable = (Component, apiPath) => class extends React.Component {
         ]}
         modal
         open={this.state.addItemsDialogOpen}
-        onRequestClose={this.handleClose}
         autoScrollBodyContent
       >
         <TextField

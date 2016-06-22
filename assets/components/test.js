@@ -5,8 +5,7 @@ import CatererTable from './CatererTable';
 import RestrictionTable from './RestrictionTable';
 import MealTable from './MealTable';
 import Menu from './Menu';
-import Home from './Home';
-import { Router, Route, IndexRoute, useRouterHistory } from 'react-router';
+import { Redirect, Router, Route, IndexRoute, useRouterHistory } from 'react-router';
 import { createHistory } from 'history';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import injectTapEventPlugin from 'react-tap-event-plugin';
@@ -25,7 +24,7 @@ const browserHistory = useRouterHistory(createHistory)({
 
 const isAuthorized = (prevState, replace) => {
   if (!authorization) {
-    replace('/menu');
+    replace('/');
     window.location.href = '';
   }
 };
@@ -59,7 +58,7 @@ class App extends React.Component {
 ReactDOM.render((
   <Router history={browserHistory}>
     <Route path="/" component={App} >
-      <IndexRoute component={Home} onEnter={isAuthorized} />
+      <IndexRoute component={Menu} />
       <Route path="menu(/:week)" component={Menu} />
       <Route path="meals" component={MealTable} onEnter={isAuthorized}/>
       <Route path="caterers" component={CatererTable} onEnter={isAuthorized}/>
