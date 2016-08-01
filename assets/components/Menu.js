@@ -19,6 +19,8 @@ import InputIcon from 'material-ui/svg-icons/action/input';
 import MenuItem from 'material-ui/MenuItem';
 import MenuAddorEditDialog from './MenuAddorEditDialog';
 
+/* eslint-disable no-nested-ternary */
+
 class Menu extends React.Component {
   static displayName = 'Menu'
 
@@ -178,6 +180,7 @@ class Menu extends React.Component {
 
     const specialMenu = (<Paper zDepth={2} style={ { marginTop: '20px' } }>
       <AppBar
+        className="menuAppBar"
         iconElementLeft={home}
         title={moment(dates.from).format('[Special Menu for] MMM D - ') + moment(dates.to).format('MMM D, Y')}
         style= { { backgroundColor: theme.palette.accent1Color } }
@@ -191,9 +194,10 @@ class Menu extends React.Component {
                 textAlign: 'center',
                 borderRight: index < 4 ? `solid 1px ${theme.tableRow.borderColor}` : 'none',
                 backgroundColor: dates.today === date ? theme.palette.accent2Color : theme.palette.canvasColor,
+                color: theme.palette.textColor,
               } }
               >
-                {moment(date).format('ddd')}
+                {moment(date).format('dddd')} ({moment(date).format('MMM D')})
               </TableHeaderColumn>);
             })}
           </TableRow>
@@ -205,6 +209,10 @@ class Menu extends React.Component {
     </Paper>);
 
     return nonRequiredRows.length ? specialMenu : '';
+  }
+
+  buildLogo() {
+    return { __html: window.logo };
   }
 
   buildMenu(mealDates, requiredRows) {
@@ -238,8 +246,10 @@ class Menu extends React.Component {
       />
     </div>);
 
-    return (<Paper zDepth={2} className="mainMenu">
+    return (<div className="mainMenu">
+    <Paper zDepth={2}>
       <AppBar
+        className="menuAppBar"
         iconElementLeft={home}
         iconElementRight={authorization ? add : login}
         title={title}
@@ -253,9 +263,10 @@ class Menu extends React.Component {
                 textAlign: 'center',
                 borderRight: index < 4 ? `solid 1px ${theme.tableRow.borderColor}` : 'none',
                 backgroundColor: dates.today === date ? theme.palette.accent2Color : theme.palette.canvasColor,
+                color: theme.palette.textColor,
               } }
               >
-                {moment(date).format('ddd')}
+                {moment(date).format('dddd')} ({moment(date).format('MMM D')})
               </TableHeaderColumn>);
             })}
           </TableRow>
@@ -264,7 +275,17 @@ class Menu extends React.Component {
           {requiredRows}
         </TableBody>
       </Table>
-    </Paper>);
+    </Paper>
+    <div style={ { marginTop: '15px', fontStyle: 'italic' } }>
+        {this.state.restrictions.map((diet, index) => {
+          return (
+          <span key={'dietString' + index}>
+            {diet.title.split(' ').map(word => word[0]).join('')} is for {diet.title}
+            {index !== this.state.restrictions.length - 1 ? index !== this.state.restrictions.length - 2 ? ', ' : ', and ' : ''}
+          </span>);
+        })}
+      </div>
+    </div>);
   }
 
   mode(_arr, field) {
@@ -340,6 +361,9 @@ class Menu extends React.Component {
           open={this.state.dialogOpen}
           item={this.state.editItem}
         />
+        <div style={ { marginTop: '5px', marginBottom: '10px' } }>
+          <div dangerouslySetInnerHTML={this.buildLogo()} />
+        </div>
         {this.buildMenu(mealDates, requiredRows)}
         {this.buildSpecialMenu(mealDates, nonRequiredRows)}
       </div>

@@ -8,6 +8,11 @@ html
         background-color: #BBDEFB
       }
 
+      .logo {
+        display: block;
+        margin: auto;
+      }
+
       .dishEditable:hover {
         border: solid 1px;
         margin: -2px;
@@ -44,9 +49,13 @@ html
           break-after: always !important;
         }
 
+        .menuAppBar {
+          display: none !important;
+        }
       }
   body
     div#content
     script().
       window.authorization = '#{authorization}';
+      window.logo = '!{config.logo.svg}';
     script(src="www/js/bundle." + (config.environment === "development" ? "" : "min.") + "js")

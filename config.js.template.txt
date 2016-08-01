@@ -14,5 +14,8 @@ module.exports = {
     url: ''
   },
   database: '/path/to/data/foody.sqlite',
-  environment: 'development'
+  environment: 'development',
+  logo: {
+    svg: ''
+  }
 };
