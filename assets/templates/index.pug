@@ -18,6 +18,11 @@ html
         margin: -2px;
       }
 
+      .mainMenuDay {
+        max-width: 450px;
+        margin: auto;
+      }
+
       /* Print Styles */
       @media print {
         hr { 
@@ -45,6 +50,11 @@ html
         }
 
         .mainMenu {
+          page-break-after: always !important;
+          break-after: always !important;
+        }
+
+        .mainMenuDay {
           page-break-after: always !important;
           break-after: always !important;
         }

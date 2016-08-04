@@ -1,6 +1,5 @@
 import React from 'react';
 import moment from 'moment';
-import authorization from 'authorization';
 import DatePicker from 'material-ui/DatePicker';
 import TableHeaderColumn from 'material-ui/Table/TableHeaderColumn';
 import TableRow from 'material-ui/Table/TableRow';
@@ -11,17 +10,12 @@ import Table from 'material-ui/Table/Table';
 import Paper from 'material-ui/Paper';
 import AppBar from 'material-ui/AppBar';
 import IconButton from 'material-ui/IconButton';
-import IconMenu from 'material-ui/IconMenu';
 import theme from '../style/theme';
 import HomeIcon from 'material-ui/svg-icons/action/home';
-import NoteAddIcon from 'material-ui/svg-icons/action/note-add';
-import InputIcon from 'material-ui/svg-icons/action/input';
-import MenuItem from 'material-ui/MenuItem';
-import MenuAddorEditDialog from './MenuAddorEditDialog';
 
 /* eslint-disable no-nested-ternary */
 
-class Menu extends React.Component {
+class MenuDay extends React.Component {
   static displayName = 'Menu'
 
   static propTypes = {
@@ -49,26 +43,20 @@ class Menu extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.params.week !== this.props.params.week) {
+    if (prevProps.params.day !== this.props.params.day) {
       this.fetchItems();
     }
   }
 
-  getDates() {
-    const week = this.props.params.week === undefined ? moment().week() : this.props.params.week;
-    return {
-      week,
-      today: moment().format('YYYY-MM-DD'),
-      from: moment().week(week).day('Monday').format('YYYY-MM-DD'),
-      to: moment().week(week).day('Friday').format('YYYY-MM-DD'),
-    };
+  getDate() {
+    const day = this.props.params.day === undefined ? moment().dayOfYear() : this.props.params.day;
+    return moment().dayOfYear(day);
   }
 
   getFetchOptions(method, body) {
     const options = {
       headers: new Headers({
         'Content-Type': 'application/json',
-        'Authorization': authorization,
       }),
       method,
       credentials: 'same-origin',
@@ -83,8 +71,9 @@ class Menu extends React.Component {
 
   fetchItems() {
     const fetchOptions = this.getFetchOptions('GET');
-    const dates = this.getDates();
-    const url = `api/menu?from=${dates.from}&to=${dates.to}&withDishes=1`;
+    const date = this.getDate();
+    const fromTo = date.format('YYYY-MM-DD');
+    const url = `api/menu?from=${fromTo}&to=${fromTo}&withDishes=1`;
 
     fetch(url, fetchOptions)
       .then((response) => response.json())
@@ -96,10 +85,10 @@ class Menu extends React.Component {
   }
 
 
-  changeWeek(date) {
-    const week = moment(date).week();
-    if (week !== this.props.params.week) {
-      this.context.router.push(`/menu/${week}`);
+  changeDay(date) {
+    const day = moment(date).dayOfYear();
+    if (day !== this.props.params.day) {
+      this.context.router.push(`/menu/day/${day}`);
     }
   }
 
@@ -112,13 +101,12 @@ class Menu extends React.Component {
 
   buildDishesColumn(menu, meal, date, index) {
     const dishes = menu[date][meal.id];
-    const dates = this.getDates();
 
     const rowStyle = {
       borderRight: index < 4 ? `solid 1px ${theme.tableRow.borderColor}` : 'none',
       verticalAlign: 'top',
       padding: '10px',
-      backgroundColor: dates.today === date ? theme.palette.accent2Color : theme.palette.canvasColor,
+      backgroundColor: theme.palette.canvasColor,
     };
 
     if (dishes.length) {
@@ -132,9 +120,7 @@ class Menu extends React.Component {
             return (
               <div
                 key={'dish' + meal.id + i}
-                style={ { whiteSpace: 'normal', marginBottom: '12px', cursor: authorization ? 'pointer' : 'default' }}
-                className={authorization ? 'dishEditable' : ''}
-                onClick={() => authorization ? this.setState({ editItem: dish, dialogOpen: true }) : null}
+                style={ { whiteSpace: 'normal', marginBottom: '12px', cursor: 'default' }}
               >
                 <div>
                   <span style={ { fontWeight: 'bold' } }>{dish.title}</span>
@@ -151,7 +137,7 @@ class Menu extends React.Component {
       verticalAlign: 'center',
       padding: '10px',
       textAlign: 'center',
-      backgroundColor: dates.today === date ? theme.palette.accent2Color : theme.palette.canvasColor,
+      backgroundColor: theme.palette.canvasColor,
     };
 
     return (
@@ -175,29 +161,29 @@ class Menu extends React.Component {
   }
 
   buildSpecialMenu(mealDates, nonRequiredRows) {
-    const dates = this.getDates();
+    const date = this.getDate();
     const home = <IconButton onClick={() => this.context.router.push('')}><div><HomeIcon color={theme.palette.canvasColor} hoverColor={theme.palette.primary1Color}/></div></IconButton>;
 
     const specialMenu = (<Paper zDepth={2} style={ { marginTop: '20px' } }>
       <AppBar
         className="menuAppBar"
         iconElementLeft={home}
-        title={moment(dates.from).format('[Special Menu for] MMM D - ') + moment(dates.to).format('MMM D, Y')}
+        title={moment(date).format('[Special Menu for] MMM D, Y')}
         style= { { backgroundColor: theme.palette.accent1Color } }
       />
       <Table selectable={false} style= { { borderCollapse: 'collapse' }}>
         <TableHeader key="header" displaySelectAll={false} adjustForCheckbox={false}>
           <TableRow>
-            {mealDates.map((date, index) => {
+            {mealDates.map((day, index) => {
               return (
               <TableHeaderColumn key={index} style={ {
                 textAlign: 'center',
                 borderRight: index < 4 ? `solid 1px ${theme.tableRow.borderColor}` : 'none',
-                backgroundColor: dates.today === date ? theme.palette.accent2Color : theme.palette.canvasColor,
+                backgroundColor: theme.palette.canvasColor,
                 color: theme.palette.textColor,
               } }
               >
-                {moment(date).format('dddd')} ({moment(date).format('MMM D')})
+                {moment(day).format('dddd')} ({moment(day).format('MMM D')})
               </TableHeaderColumn>);
             })}
           </TableRow>
@@ -216,62 +202,42 @@ class Menu extends React.Component {
   }
 
   buildMenu(mealDates, requiredRows) {
-    const dates = this.getDates();
+    const date = this.getDate();
     const home = <IconButton onClick={() => this.context.router.push('')}><div><HomeIcon color={theme.palette.canvasColor} hoverColor={theme.palette.accent1Color}/></div></IconButton>;
-    const add = (
-      <IconMenu
-        iconButtonElement={<IconButton><NoteAddIcon hoverColor={theme.palette.accent1Color} color={theme.palette.canvasColor}/></IconButton>}
-        anchorOrigin={{ horizontal: 'left', vertical: 'top' }}
-        targetOrigin={{ horizontal: 'left', vertical: 'top' }}
-      >
-        <MenuItem primaryText="Add a dish" onClick={() => this.setState({ editItem: {}, dialogOpen: true })}/>
-        <MenuItem primaryText="Manage dishes" onClick={() => this.context.router.push('/dishes')}/>
-        <MenuItem primaryText="Manage caterers" onClick={() => this.context.router.push('/caterers')}/>
-        <MenuItem primaryText="Manage meals" onClick={() => this.context.router.push('/meals')}/>
-        <MenuItem primaryText="Manage restrictions" onClick={() => this.context.router.push('/restrictions')}/>
-      </IconMenu>
-    );
-    const login = <IconButton onClick={() => window.location.href = this.context.router.createHref('', '') + 'login'}><div><InputIcon hoverColor={theme.palette.accent1Color} color={theme.palette.canvasColor}/></div></IconButton>;
 
     const title = (<div>
       <DatePicker
         mode="landscape"
         name="menu-date"
         autoOk
-        value={moment().week().toString() === dates.week ? moment(dates.today).toDate() : moment(dates.from).toDate()}
-        textFieldStyle={ { fontSize: '28px', height: 'auto', width: '50%' } }
+        value={moment(date).toDate()}
+        textFieldStyle={ { fontSize: '28px', height: 'auto', width: '100%' } }
         inputStyle={ { color: theme.palette.canvasColor, cursor: 'pointer' } }
-        onChange={(e, date) => this.changeWeek(date) }
-        formatDate={() => moment(dates.from).format('[Menu for] MMM D - ') + moment(dates.to).format('MMM D, Y')}
+        onChange={(e, day) => this.changeDay(day) }
+        formatDate={() => moment(date).format('[Menu for] MMM D, Y')}
       />
     </div>);
 
-    return (<div className="mainMenu">
+    return (<div className="mainMenuDay">
     <Paper zDepth={2}>
       <AppBar
         className="menuAppBar"
         iconElementLeft={home}
-        iconElementRight={authorization ? add : login}
         title={title}
       />
       <Table selectable={false} style= { { borderCollapse: 'collapse' }}>
         <TableHeader key="header" displaySelectAll={false} adjustForCheckbox={false}>
           <TableRow>
-            {mealDates.map((date, index) => {
+            {mealDates.map((day, index) => {
               return (
               <TableHeaderColumn key={index} style={ {
                 textAlign: 'center',
                 borderRight: index < 4 ? `solid 1px ${theme.tableRow.borderColor}` : 'none',
-                backgroundColor: dates.today === date ? theme.palette.accent2Color : theme.palette.canvasColor,
+                backgroundColor: theme.palette.canvasColor,
                 color: theme.palette.textColor,
               } }
               >
-                <a
-                  onClick= {() => this.context.router.push('/menu/day/' + moment(date).dayOfYear()) }
-                  style= { { cursor: 'pointer' } }
-                >
-                  {moment(date).format('dddd')} ({moment(date).format('MMM D')})
-                </a>
+                {moment(day).format('dddd')} ({moment(day).format('MMM D')})
               </TableHeaderColumn>);
             })}
           </TableRow>
@@ -307,22 +273,19 @@ class Menu extends React.Component {
   }
 
   render() {
-    const dates = this.getDates();
+    const date = this.getDate();
     const hasMeal = {};
     const menu = {};
     const mealDates = [];
     const requiredRows = [];
     const nonRequiredRows = [];
-    const days = moment(dates.to).diff(dates.from, 'days');
+    const day = moment(date).format('YYYY-MM-DD');
 
-    for (let i = 0; i <= days; i++) {
-      const date = moment(dates.from).add(i, 'days').format('YYYY-MM-DD');
-      mealDates.push(date);
-    }
+    mealDates.push(day);
 
-    mealDates.forEach((date) => this.state.meals.forEach((meal) => {
-      menu[date] = menu[date] || {};
-      menu[date][meal.id] = [];
+    mealDates.forEach((_day) => this.state.meals.forEach((meal) => {
+      menu[day] = menu[_day] || {};
+      menu[day][meal.id] = [];
     }));
 
     this.state.dishes.forEach((dish) => {
@@ -343,7 +306,6 @@ class Menu extends React.Component {
               borderRight: `solid 1px ${theme.tableRow.borderColor}`,
               padding: '10px',
               textAlign: 'center' } }
-            colSpan="5"
           >
             <span style={ { fontWeight: 'bold' } }>{meal.title}</span>
             <span> ({moment(meal.starttime).format('h:mm a')} - {moment(meal.endtime).format('h:mm a')})</span>
@@ -351,21 +313,12 @@ class Menu extends React.Component {
         </TableRow>);
 
         rows.push(<TableRow key={'meal' + meal.id}>
-          {mealDates.map((date, index) => this.buildDishesColumn(menu, meal, date, index))}
+          {mealDates.map((_day, index) => this.buildDishesColumn(menu, meal, _day, index))}
         </TableRow>);
       }
     });
 
     return (<div className="menu" style={ { width: '90%', margin: 'auto' } }>
-        <MenuAddorEditDialog
-          caterers={this.state.caterers}
-          restrictions={this.state.restrictions}
-          dishes={this.state.dishes}
-          meals={this.state.meals}
-          updateDishes={(...a) => this.updateDishes(...a)}
-          open={this.state.dialogOpen}
-          item={this.state.editItem}
-        />
         <div style={ { marginTop: '5px', marginBottom: '10px' } }>
           <div dangerouslySetInnerHTML={this.buildLogo()} />
         </div>
@@ -376,4 +329,4 @@ class Menu extends React.Component {
   }
 }
 
-module.exports = Menu;
+module.exports = MenuDay;

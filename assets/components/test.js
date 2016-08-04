@@ -5,6 +5,7 @@ import CatererTable from './CatererTable';
 import RestrictionTable from './RestrictionTable';
 import MealTable from './MealTable';
 import Menu from './Menu';
+import MenuDay from './MenuDay';
 import { Redirect, Router, Route, IndexRoute, useRouterHistory } from 'react-router';
 import { createHistory } from 'history';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
@@ -59,6 +60,7 @@ ReactDOM.render((
   <Router history={browserHistory}>
     <Route path="/" component={App} >
       <IndexRoute component={Menu} />
+      <Route path="menu/day(/:day)" component={MenuDay} />
       <Route path="menu(/:week)" component={Menu} />
       <Route path="meals" component={MealTable} onEnter={isAuthorized}/>
       <Route path="caterers" component={CatererTable} onEnter={isAuthorized}/>

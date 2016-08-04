@@ -84,6 +84,17 @@ module.exports = (config) => {
     res.end();
   });
 
+  router.get('/menu/day/:day?', authOnLogin, (req, res) => {
+    res.write(
+      pug.renderFile(path.join(__dirname, 'assets', 'templates', 'index.pug'),
+        {
+          authorization: req.headers.authorization,
+          base: `/${config.www.base}`,
+          config,
+        }));
+    res.end();
+  });
+
   router.get('/login', auth, (req, res) => {
     req.session.login = 1;
     res.redirect(`/${config.www.base}`);
