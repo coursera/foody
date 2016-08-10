@@ -85,10 +85,12 @@ const what = new Command(matcher, (slack, db, config) => {
           if (dishes.length) {
             const meal = meals.find(one => one.id === dishes[0].meal);
             const caterer = caterers.find(one => one.id === mode(dishes, 'caterer'));
-            const catererLink = `<${caterer.website}|${caterer.title}>`;
+            const catererLink = caterer ? `<${caterer.website}|${caterer.title}>` : '';
             const mealTime = `${moment(meal.starttime).format('h:mm a')} - ${moment(meal.endtime).format('h:mm a')}`;
             const mealLink = `<${config.www.url}/${config.www.base}/menu/${date.week()}|${date.format('dddd')}'s>`;
-            const text = `${mealLink} ${meal.title} (${mealTime}) is brought to you by ${catererLink}`;
+
+            let text = `${mealLink} ${meal.title} (${mealTime})`;
+            text += caterer ? ` is brought to you by ${catererLink}` : '';
 
             message = new Message(text);
 
